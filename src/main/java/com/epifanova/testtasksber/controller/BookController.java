@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Контроллер для управления сущностью "Книга".
+ */
 @RestController
 @RequestMapping("/books")
 public class BookController {
@@ -19,17 +22,34 @@ public class BookController {
     this.bookService = bookService;
   }
 
+  /**
+   * Создает новую книгу.
+   *
+   * @param book Сущность Book для создания.
+   * @return ResponseEntity с созданной книгой.
+   */
   @PostMapping
   public ResponseEntity<?> createBook(@RequestBody Book book) {
     bookService.saveBook(book);
     return ResponseEntity.ok().body(book);
   }
 
+  /**
+   * Получает информацию о книге по ее идентификатору.
+   *
+   * @param id Идентификатор книги.
+   * @return ResponseEntity с информацией о книге или статусом 404, если книга не найдена.
+   */
   @GetMapping("/{id}")
   public ResponseEntity<?> getBook(@PathVariable Long id) {
     return ResponseEntity.of(bookService.getBook(id));
   }
 
+  /**
+   * Получает список всех книг.
+   *
+   * @return ResponseEntity со списком книг или статусом 204, если список пуст.
+   */
   @GetMapping
   public ResponseEntity<?> getAllBooks() {
     List<Book> books = bookService.getAllBooks();
@@ -40,6 +60,13 @@ public class BookController {
     }
   }
 
+  /**
+   * Обновляет информацию о книге по ее идентификатору.
+   *
+   * @param book Сущность Book с обновленными данными.
+   * @param id   Идентификатор книги для обновления.
+   * @return ResponseEntity с обновленной книгой или статусом 404, если книга не найдена.
+   */
   @PutMapping("/{id}")
   public ResponseEntity<?> updateBook(@RequestBody Book book, @PathVariable Long id) {
     if (book.getId() == null) {
@@ -53,6 +80,12 @@ public class BookController {
     }
   }
 
+  /**
+   * Удаляет книгу по ее идентификатору.
+   *
+   * @param id Идентификатор книги, которую необходимо удалить.
+   * @return ResponseEntity с удаленной книгой или статусом 404, если книга не найдена.
+   */
   @DeleteMapping("/{id}")
   public ResponseEntity<?> deleteBook(@PathVariable Long id) {
     Optional<Book> bookOptional = bookService.getBook(id);

@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import java.util.Date;
 
+/**
+ * Класс, представляющий сущность "Выдача книги пользователю".
+ */
 @Entity
 @Table(name = "book_issue")
 @NoArgsConstructor

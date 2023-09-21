@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-
+/**
+ * Контроллер для управления сущностью "Выдача книги пользователю".
+ */
 @RestController
 @RequestMapping("/booksIssue")
 public class BookIssueController {
@@ -20,17 +22,34 @@ public class BookIssueController {
     this.bookIssueService = bookIssueService;
   }
 
+  /**
+   * Создает новую запись о выдаче книги пользователю.
+   *
+   * @param bookIssue Сущность BookIssue для создания.
+   * @return ResponseEntity с созданной записью о выдаче.
+   */
   @PostMapping
   public ResponseEntity<?> createBookIssue(@RequestBody BookIssue bookIssue) {
     bookIssueService.saveBookIssue(bookIssue);
     return ResponseEntity.ok().body(bookIssue);
   }
 
+  /**
+   * Получает информацию о выдаче книги пользователю по ее идентификатору.
+   *
+   * @param id Идентификатор записи о выдаче книги пользователю.
+   * @return ResponseEntity с информацией о записи, если она существует, иначе 404 Not Found.
+   */
   @GetMapping("/{id}")
   public ResponseEntity<?> getBookIssue(@PathVariable Long id) {
     return ResponseEntity.of(bookIssueService.getBookIssue(id));
   }
 
+  /**
+   * Получает список всех записей о выдаче книг пользователям.
+   *
+   * @return ResponseEntity со списком всех записей или 204 No Content, если список пуст.
+   */
   @GetMapping
   public ResponseEntity<?> getAllBooksIssue() {
     List<BookIssue> booksIssue = bookIssueService.getAllBookIssue();
@@ -41,6 +60,13 @@ public class BookIssueController {
     }
   }
 
+  /**
+   * Обновляет информацию о записи о выдаче книги пользователю по ее идентификатору.
+   *
+   * @param bookIssue Сущность BookIssue с обновленными данными.
+   * @param id        Идентификатор записи о выдаче книги пользователю.
+   * @return ResponseEntity с обновленной записью, если она существует, иначе 404 Not Found.
+   */
   @PutMapping("/{id}")
   public ResponseEntity<?> updateBookIssue(@RequestBody BookIssue bookIssue, @PathVariable Long id) {
     if (bookIssue.getId() == null) {
@@ -54,6 +80,12 @@ public class BookIssueController {
     }
   }
 
+  /**
+   * Удаляет запись о выдаче книги пользователю по ее идентификатору.
+   *
+   * @param id Идентификатор записи о выдаче книги пользователю, которую необходимо удалить.
+   * @return ResponseEntity с удаленной записью, если она существует, иначе 404 Not Found.
+   */
   @DeleteMapping("/{id}")
   public ResponseEntity<?> deleteBookIssue(@PathVariable Long id) {
     Optional<BookIssue> bookIssueOptional = bookIssueService.getBookIssue(id);

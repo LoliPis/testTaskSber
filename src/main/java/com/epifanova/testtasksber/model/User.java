@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Класс, представляющий сущность "Пользователь".
+ */
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
