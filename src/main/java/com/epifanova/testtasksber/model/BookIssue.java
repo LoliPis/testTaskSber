@@ -1,5 +1,6 @@
 package com.epifanova.testtasksber.model;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,6 +11,7 @@ import java.util.Date;
  * Класс, представляющий сущность "Выдача книги пользователю".
  */
 @Entity
+@Data
 @Table(name = "book_issue")
 @NoArgsConstructor
 @Getter

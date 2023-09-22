@@ -1,6 +1,7 @@
 package com.epifanova.testtasksber.repository;
 
 import com.epifanova.testtasksber.model.BookIssue;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -23,5 +24,6 @@ public interface BookIssueRepository extends JpaRepository<BookIssue, Long> {
    *
    * @param id Идентификатор выдачи книги, которую необходимо удалить.
    */
+  @Transactional
   void deleteBookIssueById(Long id);
 }
