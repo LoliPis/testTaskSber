@@ -65,7 +65,7 @@ public class BookService {
     if (bookDTO.getId() == null) {
       bookDTO.setId(id);
     }
-    if (Objects.equals(bookDTO.getId(), id)) {
+    if (bookRepository.findBookById(id).isPresent() && Objects.equals(bookDTO.getId(), id)) {
       Book book = bookDTO.toBook();
       saveBook(book);
       log.info("Книга успешно изменена");
@@ -106,7 +106,7 @@ public class BookService {
     } else {
       String message = String.format("Книга с данным id (%d) не найдена", id);
       log.info(message);
-      throw new NotFoundBooks(message);
+      throw new BookNotFoundError(message);
     }
   }
 }
