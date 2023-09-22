@@ -1,11 +1,15 @@
 package com.epifanova.testtasksber.service;
 
+import com.epifanova.testtasksber.DTO.BookDTO;
+import com.epifanova.testtasksber.exceptions.BookNotFoundError;
+import com.epifanova.testtasksber.exceptions.NotFoundBooks;
 import com.epifanova.testtasksber.model.Book;
 import com.epifanova.testtasksber.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -27,7 +31,7 @@ public class BookService {
    * @param book Сущность Book для сохранения.
    * @return Сохраненная сущность Book.
    */
-  public  Book saveBook(Book book) {
+  public Book saveBook(Book book) {
     log.info("Книга создана");
     return bookRepository.save(book);
   }
@@ -36,11 +40,41 @@ public class BookService {
    * Получает информацию о книге по ее идентификатору.
    *
    * @param id Идентификатор книги.
-   * @return Optional сущности Book, если она существует, иначе пустой Optional.
+   * @return сущность Book, если она существует, иначе пустой выбрасывается exception
    */
-  public Optional<Book> getBook(Long id){
-    log.info("Книга найдена");
-    return bookRepository.findBookById(id);
+  public Book getBook(Long id) {
+    Optional<Book> bookOptional = bookRepository.findBookById(id);
+    if (bookOptional.isPresent()) {
+      log.info("Книга найдена");
+    } else {
+      String message = String.format("Книга с данным id (%d) не найдена", id);
+      log.info(message);
+      throw new BookNotFoundError(message);
+    }
+    return bookOptional.get();
+  }
+
+  /**
+   * Редактирует информацию о книге по ее идентификатору и bookDTO.
+   *
+   * @param bookDTO экземпляр сущности BookDTO
+   * @param id      Идентификатор книги
+   * @return id измененной bookDTO, если она существует, иначе пустой выбрасывается exception
+   */
+  public Long editBook(BookDTO bookDTO, Long id) {
+    if (bookDTO.getId() == null) {
+      bookDTO.setId(id);
+    }
+    if (Objects.equals(bookDTO.getId(), id)) {
+      Book book = bookDTO.toBook();
+      saveBook(book);
+      log.info("Книга успешно изменена");
+    } else {
+      String message = String.format("Книга с данным id (%d) не найдена", id);
+      log.info(message);
+      throw new BookNotFoundError(message);
+    }
+    return bookDTO.getId();
   }
 
   /**
@@ -49,8 +83,15 @@ public class BookService {
    * @return Список сущностей Book.
    */
   public List<Book> getAllBooks() {
-    log.info("Найдены все имеющиеся книги");
-    return bookRepository.findAll();
+    List<Book> books = bookRepository.findAll();
+    if (!books.isEmpty()) {
+      log.info("Найдены все имеющиеся книги");
+    } else {
+      String message = ("Ни одной книги не найдено");
+      log.info(message);
+      throw new NotFoundBooks(message);
+    }
+    return books;
   }
 
   /**
@@ -58,8 +99,14 @@ public class BookService {
    *
    * @param id Идентификатор книги, которую необходимо удалить.
    */
-  public void deleteBook(Long id){
-    bookRepository.deleteBookById(id);
-    log.info("Книга удалена");
+  public void deleteBook(Long id) {
+    if (bookRepository.findBookById(id).isPresent()) {
+      bookRepository.deleteBookById(id);
+      log.info("Книга удалена");
+    } else {
+      String message = ("Ни одной книги не найдено");
+      log.info(message);
+      throw new NotFoundBooks(message);
+    }
   }
 }

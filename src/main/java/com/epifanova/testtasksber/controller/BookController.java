@@ -3,26 +3,22 @@ package com.epifanova.testtasksber.controller;
 import com.epifanova.testtasksber.DTO.BookDTO;
 import com.epifanova.testtasksber.model.Book;
 import com.epifanova.testtasksber.service.BookService;
+import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * Контроллер для управления сущностью "Книга".
  */
+@Data
 @RestController
 @RequestMapping("/books")
 public class BookController {
 
   private final BookService bookService;
-
-  public BookController(BookService bookService) {
-    this.bookService = bookService;
-  }
 
   /**
    * Создает новую книгу.
@@ -31,10 +27,10 @@ public class BookController {
    * @return ResponseEntity с созданным DTO книги.
    */
   @PostMapping
-  public ResponseEntity<?> createBook(@RequestBody BookDTO bookDTO) {
+  public Long createBook(@RequestBody BookDTO bookDTO) {
     Book book = bookDTO.toBook();
     bookService.saveBook(book);
-    return ResponseEntity.ok().body(book);
+    return book.getId();
   }
 
   /**
@@ -45,14 +41,8 @@ public class BookController {
    */
   @GetMapping("/{id}")
   public ResponseEntity<?> getBook(@PathVariable Long id) {
-    Optional<Book> bookOptional = bookService.getBook(id);
-    if (bookOptional.isPresent()) {
-      Book book = bookOptional.get();
-      BookDTO bookDTO = BookDTO.from(book);
-      return ResponseEntity.ok(bookDTO);
-    } else {
-      return ResponseEntity.notFound().build();
-    }
+    BookDTO bookDTO = BookDTO.from(bookService.getBook(id));
+    return ResponseEntity.ok(bookDTO);
   }
 
   /**
@@ -63,35 +53,24 @@ public class BookController {
   @GetMapping
   public ResponseEntity<?> getAllBooks() {
     List<Book> books = bookService.getAllBooks();
-    if (!books.isEmpty()) {
-      List<BookDTO> bookDTOs = books.stream()
-          .map(BookDTO::from)
-          .collect(Collectors.toList());
-      return ResponseEntity.ok(bookDTOs);
-    } else {
-      return ResponseEntity.noContent().build();
-    }
+    List<BookDTO> bookDTOs = books.stream()
+        .map(BookDTO::from)
+        .collect(Collectors.toList());
+    return ResponseEntity.ok(bookDTOs);
+
   }
 
   /**
    * Обновляет информацию о книге по ее идентификатору.
    *
    * @param bookDTO Сущность BookDTO с обновленными данными.
-   * @param id   Идентификатор книги для обновления.
+   * @param id      Идентификатор книги для обновления.
    * @return ResponseEntity с обновленным DTO книги или статусом 404, если книга не найдена.
    */
   @PutMapping("/{id}")
   public ResponseEntity<?> updateBook(@RequestBody BookDTO bookDTO, @PathVariable Long id) {
-    if (bookDTO.getId() == null) {
-      bookDTO.setId(id);
-    }
-    if (bookService.getBook(id).isPresent() && Objects.equals(bookDTO.getId(), id)) {
-      Book book = bookDTO.toBook();
-      bookService.saveBook(book);
-      return ResponseEntity.ok().body(bookDTO);
-    } else {
-      return ResponseEntity.notFound().build();
-    }
+    bookService.editBook(bookDTO, id);
+    return ResponseEntity.ok().body(bookDTO);
   }
 
   /**
@@ -102,10 +81,7 @@ public class BookController {
    */
   @DeleteMapping("/{id}")
   public ResponseEntity<?> deleteBook(@PathVariable Long id) {
-    Optional<Book> bookOptional = bookService.getBook(id);
-    if (bookOptional.isPresent()) {
-      bookService.deleteBook(id);
-    }
-    return ResponseEntity.of(bookOptional);
+    bookService.deleteBook(id);
+    return ResponseEntity.ok(id);
   }
 }

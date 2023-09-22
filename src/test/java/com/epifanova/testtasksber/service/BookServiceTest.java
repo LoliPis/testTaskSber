@@ -1,5 +1,6 @@
 package com.epifanova.testtasksber.service;
 
+import com.epifanova.testtasksber.exceptions.BookNotFoundError;
 import com.epifanova.testtasksber.model.Book;
 import com.epifanova.testtasksber.repository.BookRepository;
 import org.junit.jupiter.api.BeforeAll;
@@ -54,12 +55,12 @@ public class BookServiceTest {
     when(bookRepository.findBookById(1L)).thenReturn(Optional.of(book));
     when(bookRepository.findBookById(2L)).thenReturn(Optional.empty());
 
-    Optional<Book> presentBook = bookService.getBook(1L);
-    Optional<Book> emptyBook = bookService.getBook(2L);
+    Book presentBook = bookService.getBook(1L);
 
-    assertTrue(presentBook.isPresent());
-    assertEquals(presentBook.get(), book);
-    assertTrue(emptyBook.isEmpty());
+
+    assertNotNull(presentBook);
+    assertEquals(presentBook, book);
+    assertThrows(BookNotFoundError.class, () -> bookService.getBook(2L));
   }
 
   @Test
