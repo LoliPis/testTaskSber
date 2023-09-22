@@ -104,7 +104,7 @@ public class BookService {
       bookRepository.deleteBookById(id);
       log.info("Книга удалена");
     } else {
-      String message = ("Ни одной книги не найдено");
+      String message = String.format("Книга с данным id (%d) не найдена", id);
       log.info(message);
       throw new NotFoundBooks(message);
     }
