@@ -2,6 +2,7 @@ package com.epifanova.testtasksber.service;
 
 import com.epifanova.testtasksber.model.Book;
 import com.epifanova.testtasksber.repository.BookRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Optional;
 /**
  * Сервис для управления сущностью "Книга".
  */
+@Slf4j
 @Service
 public class BookService {
 
@@ -26,6 +28,7 @@ public class BookService {
    * @return Сохраненная сущность Book.
    */
   public  Book saveBook(Book book) {
+    log.info("Книга создана");
     return bookRepository.save(book);
   }
 
@@ -36,6 +39,7 @@ public class BookService {
    * @return Optional сущности Book, если она существует, иначе пустой Optional.
    */
   public Optional<Book> getBook(Long id){
+    log.info("Книга найдена");
     return bookRepository.findBookById(id);
   }
 
@@ -45,6 +49,7 @@ public class BookService {
    * @return Список сущностей Book.
    */
   public List<Book> getAllBooks() {
+    log.info("Найдены все имеющиеся книги");
     return bookRepository.findAll();
   }
 
@@ -55,5 +60,6 @@ public class BookService {
    */
   public void deleteBook(Long id){
     bookRepository.deleteBookById(id);
+    log.info("Книга удалена");
   }
 }
