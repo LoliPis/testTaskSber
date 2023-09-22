@@ -1,5 +1,6 @@
 package com.epifanova.testtasksber.controller;
 
+import com.epifanova.testtasksber.DTO.BookDTO;
 import com.epifanova.testtasksber.model.Book;
 import com.epifanova.testtasksber.service.BookService;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Контроллер для управления сущностью "Книга".
@@ -25,11 +27,12 @@ public class BookController {
   /**
    * Создает новую книгу.
    *
-   * @param book Сущность Book для создания.
-   * @return ResponseEntity с созданной книгой.
+   * @param bookDTO Сущность BookDTO для создания.
+   * @return ResponseEntity с созданным DTO книги.
    */
   @PostMapping
-  public ResponseEntity<?> createBook(@RequestBody Book book) {
+  public ResponseEntity<?> createBook(@RequestBody BookDTO bookDTO) {
+    Book book = bookDTO.toBook();
     bookService.saveBook(book);
     return ResponseEntity.ok().body(book);
   }
@@ -38,23 +41,33 @@ public class BookController {
    * Получает информацию о книге по ее идентификатору.
    *
    * @param id Идентификатор книги.
-   * @return ResponseEntity с информацией о книге или статусом 404, если книга не найдена.
+   * @return ResponseEntity с информацией о DTO книге или статусом 404, если книга не найдена.
    */
   @GetMapping("/{id}")
   public ResponseEntity<?> getBook(@PathVariable Long id) {
-    return ResponseEntity.of(bookService.getBook(id));
+    Optional<Book> bookOptional = bookService.getBook(id);
+    if (bookOptional.isPresent()) {
+      Book book = bookOptional.get();
+      BookDTO bookDTO = BookDTO.from(book);
+      return ResponseEntity.ok(bookDTO);
+    } else {
+      return ResponseEntity.notFound().build();
+    }
   }
 
   /**
    * Получает список всех книг.
    *
-   * @return ResponseEntity со списком книг или статусом 204, если список пуст.
+   * @return ResponseEntity со списком DTO книг или статусом 204, если список пуст.
    */
   @GetMapping
   public ResponseEntity<?> getAllBooks() {
     List<Book> books = bookService.getAllBooks();
     if (!books.isEmpty()) {
-      return ResponseEntity.ok(books);
+      List<BookDTO> bookDTOs = books.stream()
+          .map(BookDTO::from)
+          .collect(Collectors.toList());
+      return ResponseEntity.ok(bookDTOs);
     } else {
       return ResponseEntity.noContent().build();
     }
@@ -63,18 +76,19 @@ public class BookController {
   /**
    * Обновляет информацию о книге по ее идентификатору.
    *
-   * @param book Сущность Book с обновленными данными.
+   * @param bookDTO Сущность BookDTO с обновленными данными.
    * @param id   Идентификатор книги для обновления.
-   * @return ResponseEntity с обновленной книгой или статусом 404, если книга не найдена.
+   * @return ResponseEntity с обновленным DTO книги или статусом 404, если книга не найдена.
    */
   @PutMapping("/{id}")
-  public ResponseEntity<?> updateBook(@RequestBody Book book, @PathVariable Long id) {
-    if (book.getId() == null) {
-      book.setId(id);
+  public ResponseEntity<?> updateBook(@RequestBody BookDTO bookDTO, @PathVariable Long id) {
+    if (bookDTO.getId() == null) {
+      bookDTO.setId(id);
     }
-    if (bookService.getBook(id).isPresent() && Objects.equals(book.getId(), id)) {
+    if (bookService.getBook(id).isPresent() && Objects.equals(bookDTO.getId(), id)) {
+      Book book = bookDTO.toBook();
       bookService.saveBook(book);
-      return ResponseEntity.ok().body(book);
+      return ResponseEntity.ok().body(bookDTO);
     } else {
       return ResponseEntity.notFound().build();
     }
